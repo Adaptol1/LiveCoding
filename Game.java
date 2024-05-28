@@ -60,8 +60,8 @@ public class Game
         }
         synchronized (NewThread.gameLog)
         {
-            NewThread.gameLog.add("Игрок " + getGameWinner(victoriesCount) + " первым набрал "
-                    + winsNecessary + " побед и стал победителем состязания.");
+            NewThread.gameLog.add("Player " + getGameWinner(victoriesCount) + " is the first who scored "
+                    + winsNecessary + " points and become a winner of the game.");
         }
         gameOver();
     }
@@ -101,7 +101,7 @@ public class Game
             {
                 synchronized (NewThread.gameLog)
                 {
-                    NewThread.gameLog.add("В раунде победил первый игрок");
+                    NewThread.gameLog.add("First player win the match.");
                     return 0;
                 }
             }
@@ -110,7 +110,7 @@ public class Game
             {
                 synchronized (NewThread.gameLog)
                 {
-                    NewThread.gameLog.add("В раунде победил второй игрок");
+                    NewThread.gameLog.add("Second player win the match.");
                     return 1;
                 }
             }
@@ -119,14 +119,14 @@ public class Game
             {
                 synchronized (NewThread.gameLog)
                 {
-                    NewThread.gameLog.add("В раунде победил третий игрок");
+                    NewThread.gameLog.add("Third player win the match.");
                     return 2;
                 }
             }
 
             synchronized (NewThread.gameLog)
             {
-                NewThread.gameLog.add("В раунде ничья.");
+                NewThread.gameLog.add("Nobody wins the match. Game draw.");
                 return -1;
             }
     }

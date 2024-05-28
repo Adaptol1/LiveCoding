@@ -16,7 +16,7 @@ public class NewThread extends Thread
     static
     {
         gameLog = Collections.synchronizedList(gameLog);
-        gameLog.add("Результаты игры:");
+        gameLog.add("Game results:");
     }
 
     @Override
@@ -36,15 +36,15 @@ public class NewThread extends Thread
                     {
                         case 1:
                             gameLog.add(Thread.currentThread().getName() +
-                                    " выкинул ножницы");
+                                    " throw scissors");
                             break;
                         case 2:
                             gameLog.add(Thread.currentThread().getName() +
-                                    " выкинул камень");
+                                    " throw rock");
                             break;
                         case 3:
                             gameLog.add(Thread.currentThread().getName() +
-                                    " выкинул бумагу");
+                                    " throw paper");
                             break;
                     }
 
