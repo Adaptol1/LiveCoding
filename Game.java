@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import static java.lang.Thread.sleep;
@@ -10,39 +9,39 @@ public class Game
 
     public Game()
     {
-        players = new LinkedList<>();
+        players = new ArrayList<>();
+        String [] playerNames = new String[] {"First player", "Second player", "Third player"};
 
         for(int i = 0; i < 3; i++)
         {
             players.add(new NewThread());
+            players.get(i).setName(playerNames[i]);
         }
     }
     public void startGame(int winsNecessary)
     {
         int winner;
         int[] victoriesCount = new int[3];
-
-        for(int n = 0; n < players.size(); n++)
-            players.get(n).start();
-
         boolean firstIteration = true;
+
+        for(NewThread thread : players)
+            thread.start();
 
         for(int i = 0; i < winsNecessary;)
         {
             try
             {
-                int logCount = 1;
-
                 if(!firstIteration)
                 {
-                    logCount = NewThread.gameLog.size();
-
-                    for (int n = 0; n < players.size(); n++)
-                        players.get(n).nextMatch();
+                    for (NewThread thread : players)
+                        synchronized (thread)
+                        {
+                            thread.nextMatch();
+                        }
                 }
-
-                while (NewThread.gameLog.size() != logCount + 3)
-                    sleep(100);
+                for(NewThread thread : players)
+                    while (thread.getState() != Thread.State.WAITING)
+                        sleep(100);
 
                 winner = getCurrentMatchWinner();
                 firstIteration = false;
@@ -58,11 +57,8 @@ public class Game
                 e.printStackTrace();
             }
         }
-        synchronized (NewThread.gameLog)
-        {
-            NewThread.gameLog.add("Player " + getGameWinner(victoriesCount) + " is the first who scored "
-                    + winsNecessary + " points and become a winner of the game.");
-        }
+        System.out.println(getGameWinner(victoriesCount) + " is the first who scored "
+                            + winsNecessary + " points and become a winner of the game.");
         gameOver();
     }
 
@@ -76,13 +72,12 @@ public class Game
             if (maxValue == victoriesCount[i])
                 winner = i;
         }
-
         return players.get(winner).getName();
     }
 
     private int getCurrentMatchWinner()
     {
-        ArrayList<Integer> figures = new ArrayList<Integer>();
+        ArrayList<Integer> figures = new ArrayList<>();
 
         for(NewThread thread : players)
             figures.add(thread.getFigure());
@@ -97,38 +92,26 @@ public class Game
                 (figures.get(2) == 2 && figures.get(0) == 1 && figures.get(1) == 1) ||
                 (figures.get(2) == 3 && figures.get(0) == 2 && figures.get(1) == 2);
 
-            if (isFirstWinner)
-            {
-                synchronized (NewThread.gameLog)
-                {
-                    NewThread.gameLog.add("First player win the match.");
-                    return 0;
-                }
-            }
+        if (isFirstWinner)
+        {
+            System.out.println("First player win the match.");
+            return 0;
+        }
 
-            if (isSecondWinner)
-            {
-                synchronized (NewThread.gameLog)
-                {
-                    NewThread.gameLog.add("Second player win the match.");
-                    return 1;
-                }
-            }
+        if (isSecondWinner)
+        {
+            System.out.println("Second player win the match.");
+            return 1;
+        }
 
-            if (isThirdWinner)
-            {
-                synchronized (NewThread.gameLog)
-                {
-                    NewThread.gameLog.add("Third player win the match.");
-                    return 2;
-                }
-            }
+        if (isThirdWinner)
+        {
+            System.out.println("Third player win the match.");
+            return 2;
+        }
 
-            synchronized (NewThread.gameLog)
-            {
-                NewThread.gameLog.add("Nobody wins the match. Game draw.");
-                return -1;
-            }
+        System.out.println("Nobody wins the match. Game draw.");
+        return -1;
     }
     private int getMaxVictoriesCount(int[] victoriesCount)
     {
@@ -144,9 +127,11 @@ public class Game
     {
         for(NewThread thread : players)
         {
-            thread.disable();
-            thread.interrupt();
+            synchronized (thread)
+            {
+                thread.disable();
+                thread.interrupt();
+            }
         }
-
     }
 }

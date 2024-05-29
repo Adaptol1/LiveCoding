@@ -1,7 +1,3 @@
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 public class NewThread extends Thread
 {
     private int figure;
@@ -12,48 +8,37 @@ public class NewThread extends Thread
 
     private boolean isActive = true;
 
-    static List<String> gameLog = new ArrayList<>();
-    static
-    {
-        gameLog = Collections.synchronizedList(gameLog);
-        gameLog.add("Game results:");
-    }
-
     @Override
     public void run()
     {
-        synchronized (gameLog)
+        while(isActive)
         {
-            while(isActive)
+            try
             {
-                try
-                {
-                    figure = (int) (1 + 2 * Math.random());
-                    long sleepTime = (long) (MIN_SLEEP_TIME + Math.random() * (MAX_SLEEP_TIME - MIN_SLEEP_TIME));
-                    sleep(sleepTime);
+                figure = (int) (1 + 2 * Math.random());
+                long sleepTime = (long) (MIN_SLEEP_TIME + Math.random() * (MAX_SLEEP_TIME - MIN_SLEEP_TIME));
+                sleep(sleepTime);
 
-                    switch (figure)
-                    {
-                        case 1:
-                            gameLog.add(Thread.currentThread().getName() +
-                                    " throw scissors");
-                            break;
-                        case 2:
-                            gameLog.add(Thread.currentThread().getName() +
-                                    " throw rock");
-                            break;
-                        case 3:
-                            gameLog.add(Thread.currentThread().getName() +
-                                    " throw paper");
-                            break;
-                    }
-
-                    gameLog.wait();
-                }
-                catch (InterruptedException e)
+                switch (figure)
                 {
-                    e.printStackTrace();
+                    case 1:
+                        System.out.println(getName() + " throw scissors");
+                        break;
+                    case 2:
+                        System.out.println(getName() + " throw rock");
+                        break;
+                    case 3:
+                        System.out.println(getName() + " throw paper");
+                        break;
                 }
+                synchronized (this)
+                {
+                    wait();
+                }
+            }
+            catch (InterruptedException e)
+            {
+                e.printStackTrace();
             }
         }
     }
@@ -65,18 +50,12 @@ public class NewThread extends Thread
 
     public void nextMatch()
     {
-        synchronized (gameLog)
-        {
-            gameLog.notify();
-        }
+        notify();
     }
 
     public void disable()
     {
         isActive = false;
-        synchronized (gameLog)
-        {
-            gameLog.notify();
-        }
+        notify();
     }
 }
